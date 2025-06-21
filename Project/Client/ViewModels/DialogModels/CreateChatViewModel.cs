@@ -4,17 +4,23 @@ using System;
 using ReactiveUI.Fody.Helpers;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Client.Models;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls;
+using Avalonia;
+using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace Client.ViewModels.DialogModels;
 
 public class CreateChatViewModel : ReactiveObject
 {
     private readonly ChatsViewModel _parentVm;
+    private readonly HttpClient _httpClient = new();
+    private readonly string _apiUrl = "https://localhost:7068/api";
 
-    // Поля для приватного чата
     [Reactive] public string Username { get; set; }
-
-    // Поля для группового чата
     [Reactive] public string GroupName { get; set; }
     [Reactive] public bool IsPublic { get; set; } = true;
     [Reactive] public bool IsPrivateSelected { get; set; } = true;
@@ -24,7 +30,6 @@ public class CreateChatViewModel : ReactiveObject
     public CreateChatViewModel(ChatsViewModel parentVm)
     {
         _parentVm = parentVm;
-
         CreateCommand = ReactiveCommand.CreateFromTask(CreateChat);
     }
 
@@ -37,24 +42,42 @@ public class CreateChatViewModel : ReactiveObject
                 if (string.IsNullOrWhiteSpace(Username))
                     throw new Exception("Введите логин пользователя");
 
-                // Логика создания приватного чата
-                Debug.WriteLine($"Создаем приватный чат с {Username}");
+                // Поиск пользователя по логину
+                var response = await _httpClient.GetAsync($"{_apiUrl}/users/find?username={Username}");
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception("Пользователь не найден");
+
+                var userJson = await response.Content.ReadAsStringAsync();
+                var foundUser = JsonSerializer.Deserialize<User>(userJson, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                // Создание приватного чата
+                await _parentVm.CreatePrivateChat(
+                    _parentVm.currentUserId_, // ID текущего пользователя
+                    foundUser.Id            // ID найденного пользователя
+                );
             }
             else
             {
                 if (string.IsNullOrWhiteSpace(GroupName))
                     throw new Exception("Введите название группы");
 
-                // Логика создания группового чата
                 Debug.WriteLine($"Создаем {(IsPublic ? "публичный" : "приватный")} чат: {GroupName}");
             }
 
-            //this.Close(true); // Закрываем окно с результатом
+            CloseDialog(true);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Ошибка: {ex.Message}");
-            // Можно показать MessageBox с ошибкой
         }
+    }
+
+    private void CloseDialog(bool result)
+    {
+        // Закрытие диалога
     }
 }

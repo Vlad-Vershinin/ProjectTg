@@ -12,8 +12,8 @@
 				<DataTemplate>
 					<StackPanel Margin="10">
 						<TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-						<TextBlock Text="{Binding LastMessagePreview}" Opacity="0.7"/>
-						<TextBlock Text="{Binding LastMessageTime}" FontSize="10"/>
+						<TextBlock Text="" Opacity="0.7"/>
+						<TextBlock Text="" FontSize="10"/>
 					</StackPanel>
 				</DataTemplate>
 			</ListBox.ItemTemplate>

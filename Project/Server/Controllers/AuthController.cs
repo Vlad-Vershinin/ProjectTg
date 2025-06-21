@@ -41,14 +41,8 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
     {
-        Debug.WriteLine("Регистрация");
-        Console.WriteLine("Регистрация");
-
         if (await db_.Users.AnyAsync(u => u.Login == registerDto.Login))
             return BadRequest("Пользователь уже существует");
-
-        Debug.Write($"{registerDto.Id}\n{registerDto.Login}\n{registerDto.Password}");
-        Console.Write($"{registerDto.Id}\n{registerDto.Login}\n{registerDto.Password}");
 
         var user = new User
         {
@@ -64,8 +58,6 @@ public class AuthController : ControllerBase
         await db_.SaveChangesAsync();
 
         var token = GenerateJwtToken(registerDto.Login);
-        Debug.WriteLine($"{token}");
-        Console.WriteLine($"{token}");
         return Ok(token);
     }
 

@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
         x:Class="Client.Views.DialogViews.CreateChatView"
 		xmlns:vm="using:Client.ViewModels.DialogModels"
 		x:DataType="vm:CreateChatViewModel">
@@ -15,16 +15,16 @@
 		<!-- Форма для приватного чата -->
 		<StackPanel x:Name="PrivateChatForm" IsVisible="True" Spacing="5">
 			<TextBlock Text="Логин пользователя:"/>
-			<TextBox x:Name="UsernameInput" Watermark="Введите логин"/>
+			<TextBox x:Name="UsernameInput" Watermark="Введите логин" Text="{Binding Username}"/>
 		</StackPanel>
 
 		<!-- Форма для группового чата -->
 		<StackPanel x:Name="GroupChatForm" IsVisible="False" Spacing="5">
 			<TextBlock Text="Название группы:"/>
-			<TextBox x:Name="GroupNameInput" Watermark="Введите название"/>
+			<TextBox x:Name="GroupNameInput" Watermark="Введите название" Text="{Binding GroupName}"/>
 
 			<StackPanel Orientation="Horizontal" Spacing="10">
-				<RadioButton x:Name="PublicGroupRadio" Content="Публичная" IsChecked="True"/>
+				<RadioButton x:Name="PublicGroupRadio" Content="Публичный" IsChecked="True"/>
 				<RadioButton Content="По приглашению"/>
 			</StackPanel>
 		</StackPanel>

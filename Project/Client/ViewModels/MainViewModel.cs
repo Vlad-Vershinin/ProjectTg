@@ -1,12 +1,15 @@
 ﻿using Avalonia.Controls;
 using Client.Views;
 using ReactiveUI.Fody.Helpers;
+using System;
 using System.Threading.Tasks;
 
 namespace Client.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
+    public Guid UserId { get; set; }
+
     [Reactive] public Control? CurrentContent { get; set; }
 
     private LoginView LoginView { get; set; }
@@ -20,7 +23,7 @@ public class MainViewModel : ViewModelBase
 
         LoginView = new LoginView { DataContext = new LoginViewModel(this) };
         RegisterView = new RegisterView { DataContext = new RegisterViewModel(this) };
-        ChatsView = new ChatsView { DataContext = new ChatsViewModel(this, mainWindow) };
+        ChatsView = new ChatsView { DataContext = new ChatsViewModel(this) };
 
         NavigateToLogin();
     }

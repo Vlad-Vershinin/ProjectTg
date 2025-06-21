@@ -12,6 +12,12 @@ public class User
     public string? Description { get; set; }
     public string AvatarUrl { get; set; }
 
+    //[JsonIgnore]
+    //public List<Chat> Chats { get; set; }
+
     [JsonIgnore]
-    public List<Chat> Chats { get; set; }
+    public List<PrivateChat> PrivateChatsAsUser1 { get; set; } = new();
+
+    [JsonIgnore]
+    public List<PrivateChat> PrivateChatsAsUser2 { get; set; } = new();
 }

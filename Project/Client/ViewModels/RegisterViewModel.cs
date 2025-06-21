@@ -56,9 +56,12 @@ class RegisterViewModel : ReactiveObject
     {
         try
         {
+            Guid id = Guid.NewGuid();
+            mainViewModel_.UserId = id;
+
             var json = JsonSerializer.Serialize(new
             {
-                Id = Guid.NewGuid(),
+                Id = id,
                 Login,
                 Password,
                 Email
