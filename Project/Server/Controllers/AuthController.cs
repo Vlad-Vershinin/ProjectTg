@@ -25,11 +25,13 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
+        Debug.WriteLine(loginDto.Login);
+        Console.WriteLine(loginDto.Login);
         var user = await db_.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Login == loginDto.Login);
 
-        if (user == null || BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+        if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
         {
-            return BadRequest();
+            return BadRequest("Неверный логин или пароль");
         }
 
         var token = GenerateJwtToken(loginDto.Login);

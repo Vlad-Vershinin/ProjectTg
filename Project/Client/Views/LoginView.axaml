@@ -45,7 +45,8 @@
 			<Button Content="Вход"
 					HorizontalAlignment="Center"
 					Margin="0 10 0 0"
-					IsEnabled="{Binding IsLoading}"/>
+					IsEnabled="{Binding IsLoading}"
+					Command="{Binding LoginCommand}"/>
 			
 		</StackPanel>
 	</Grid>

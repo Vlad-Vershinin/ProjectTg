@@ -64,19 +64,13 @@ class LoginViewModel : ReactiveObject
                 Password
             });
 
-            if (!response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
-                return;
+                var token = await response.Content.ReadAsStringAsync();
+
+                mainViewModel_?.NavigateToChats();
             }
 
-            var authResponse = await response.Content.ReadFromJsonAsync<AuthResponse>();
-            if (authResponse?.Token == null)
-            {
-                Debug.WriteLine("Неудалось получить токен");
-                return;
-            }
-
-            Debug.WriteLine($"{authResponse?.Token}");
         }
         catch(HttpRequestException ex) {
             Debug.WriteLine($"Ошибка сети: {ex.Message}");
@@ -92,9 +86,4 @@ class LoginViewModel : ReactiveObject
         
     }
 
-}
-
-public class AuthResponse()
-{
-    public string Token { get; set; }
 }

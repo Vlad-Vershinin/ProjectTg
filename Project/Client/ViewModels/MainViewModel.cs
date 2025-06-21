@@ -11,11 +11,16 @@ public class MainViewModel : ViewModelBase
 
     private LoginView LoginView { get; set; }
     private RegisterView RegisterView { get; set; }
+    private ChatsView ChatsView { get; set; }
+    public MainWindow MainWindow { get; set; }
 
-    public MainViewModel()
+    public MainViewModel(MainWindow mainWindow)
     {
+        MainWindow = mainWindow;
+
         LoginView = new LoginView { DataContext = new LoginViewModel(this) };
         RegisterView = new RegisterView { DataContext = new RegisterViewModel(this) };
+        ChatsView = new ChatsView { DataContext = new ChatsViewModel(this, mainWindow) };
 
         NavigateToLogin();
     }
@@ -25,4 +30,7 @@ public class MainViewModel : ViewModelBase
 
     public async Task NavigateToRegister() => 
         CurrentContent = RegisterView;
+
+    public async Task NavigateToChats() =>
+        CurrentContent = ChatsView;
 }

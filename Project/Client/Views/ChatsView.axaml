@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Client.Views.ChatsView"
+			 xmlns:vm="using:Client.ViewModels"
+			 x:DataType="vm:ChatsViewModel">
+	<Grid ColumnDefinitions="300, *" ShowGridLines="True">
+		<ListBox ItemsSource="{Binding Chats}" SelectedItem="{Binding SelectedChat}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<StackPanel Margin="10">
+						<TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+						<TextBlock Text="{Binding LastMessagePreview}" Opacity="0.7"/>
+						<TextBlock Text="{Binding LastMessageTime}" FontSize="10"/>
+					</StackPanel>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+		<Button Grid.Column="0"
+				HorizontalAlignment="Right"
+				VerticalAlignment="Bottom"
+				Content="+"
+				CornerRadius="90"
+				Command="{Binding CreateChatCommand}"
+				Foreground="White"/>
+
+		<ContentControl Content="{Binding SelectedChar}"/>
+	</Grid>
+</UserControl>

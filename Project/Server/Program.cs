@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Server.Controllers;
 using Server.Data;
-using System.Text;
-
 namespace Server;
 
 public class Program
@@ -16,35 +13,6 @@ public class Program
 
         builder.Services.AddControllers();
         builder.Services.AddSignalR();
-
-        var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Secret"]);
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-                };
-
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var accessToken = context.Request.Query["access_token"];
-                        if (!string.IsNullOrEmpty(accessToken))
-                        {
-                            context.Token = accessToken;
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-            });
 
         builder.Services.AddCors(options =>
         {
@@ -63,6 +31,10 @@ public class Program
         app.UseHttpsRedirection();
         app.UseAuthorization();
         app.MapControllers();
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+
+        app.MapHub<ChatHub>("/chat");
 
         app.Run();
     }

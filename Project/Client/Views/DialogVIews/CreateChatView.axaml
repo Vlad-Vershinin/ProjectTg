@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Client.Views.DialogViews.CreateChatView"
+		xmlns:vm="using:Client.ViewModels.DialogModels"
+		x:DataType="vm:CreateChatViewModel">
+	<StackPanel Margin="20" Spacing="10">
+		<ComboBox x:Name="ChatTypeComboBox" SelectedIndex="0">
+			<ComboBoxItem>Приватный чат</ComboBoxItem>
+			<ComboBoxItem>Групповой чат</ComboBoxItem>
+		</ComboBox>
+
+		<!-- Форма для приватного чата -->
+		<StackPanel x:Name="PrivateChatForm" IsVisible="True" Spacing="5">
+			<TextBlock Text="Логин пользователя:"/>
+			<TextBox x:Name="UsernameInput" Watermark="Введите логин"/>
+		</StackPanel>
+
+		<!-- Форма для группового чата -->
+		<StackPanel x:Name="GroupChatForm" IsVisible="False" Spacing="5">
+			<TextBlock Text="Название группы:"/>
+			<TextBox x:Name="GroupNameInput" Watermark="Введите название"/>
+
+			<StackPanel Orientation="Horizontal" Spacing="10">
+				<RadioButton x:Name="PublicGroupRadio" Content="Публичная" IsChecked="True"/>
+				<RadioButton Content="По приглашению"/>
+			</StackPanel>
+		</StackPanel>
+
+		<Button Content="Создать" Command="{Binding CreateCommand}" HorizontalAlignment="Right"/>
+	</StackPanel>
+</Window>
