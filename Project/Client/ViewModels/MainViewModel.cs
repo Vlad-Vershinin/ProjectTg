@@ -8,7 +8,7 @@ namespace Client.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
-    public Guid UserId { get; set; }
+    public Guid UserId { get; set; } = Guid.Parse("0999bf82-c1ab-46d9-ac10-39f0b6f6814e");
 
     [Reactive] public Control? CurrentContent { get; set; }
 

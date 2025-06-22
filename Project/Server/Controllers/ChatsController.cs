@@ -37,12 +37,13 @@ public class ChatsController : ControllerBase
 
         if (existingChat != null)
         {
-            return Ok(existingChat);
+            return Ok(existingChat); // Возвращаем существующий чат
         }
 
         // Создаем новый чат
         var chat = new PrivateChat
         {
+            Id = dto.Id,
             User1Id = dto.User1Id,
             User2Id = dto.User2Id,
             Name = $"{user1.Username} и {user2.Username}"

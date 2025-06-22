@@ -92,14 +92,13 @@ public class ChatsViewModel : ReactiveObject
         }
     }
 
-
     public async Task CreatePrivateChat(Guid user1Id, Guid user2Id)
     {
         try
         {
             var response = await httpClient_.PostAsJsonAsync(
                 $"{_apiUrl}/chats/private",
-                new CreatePrivateChatDto { User1Id = user1Id, User2Id = user2Id });
+                new CreatePrivateChatDto { Id = Guid.NewGuid(), User1Id = currentUserId_, User2Id = user2Id });
 
             if (response.IsSuccessStatusCode)
             {

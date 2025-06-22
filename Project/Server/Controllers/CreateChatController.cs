@@ -45,7 +45,7 @@ public class CreateChatController : ControllerBase
             User1Id = chatDto.User1Id,
             User2Id = chatDto.User2Id,
             Name = $"{user1.Username} и {user2.Username}",
-            Messages = new ObservableCollection<Message>()
+            Messages = new List<Message>()
         };
 
         _db.PrivateChats.Add(newChat);
