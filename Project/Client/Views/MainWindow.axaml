@@ -8,5 +8,5 @@
         x:Class="Client.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="Client">
-	<ContentControl Content="{Binding CurrentContent}"></ContentControl>
+	<ContentControl Content="{Binding CurrentContent}"/>
 </Window>

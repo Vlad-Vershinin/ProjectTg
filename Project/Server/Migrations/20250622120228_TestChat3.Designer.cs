@@ -12,8 +12,8 @@ using Server.Data;
 namespace Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250622090801_Initial")]
-    partial class Initial
+    [Migration("20250622120228_TestChat3")]
+    partial class TestChat3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,6 +53,9 @@ namespace Server.Migrations
 
                     b.Property<Guid>("ChatId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uuid");

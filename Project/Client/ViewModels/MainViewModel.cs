@@ -8,7 +8,7 @@ namespace Client.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
-    public Guid UserId { get; set; } = Guid.Parse("0999bf82-c1ab-46d9-ac10-39f0b6f6814e");
+    [Reactive] public Guid UserId { get; set; }
 
     [Reactive] public Control? CurrentContent { get; set; }
 
@@ -23,7 +23,7 @@ public class MainViewModel : ViewModelBase
 
         LoginView = new LoginView { DataContext = new LoginViewModel(this) };
         RegisterView = new RegisterView { DataContext = new RegisterViewModel(this) };
-        ChatsView = new ChatsView { DataContext = new ChatsViewModel(this) };
+        //ChatsView = new ChatsView { DataContext = new ChatsViewModel(this) };
 
         NavigateToLogin();
     }
@@ -35,5 +35,5 @@ public class MainViewModel : ViewModelBase
         CurrentContent = RegisterView;
 
     public async Task NavigateToChats() =>
-        CurrentContent = ChatsView;
+        CurrentContent = new ChatsView { DataContext = new ChatsViewModel(this) };
 }

@@ -18,9 +18,9 @@ class RegisterViewModel : ReactiveObject
 
     [Reactive] public char PasswordChar { get; set; } = '•';
 
-    [Reactive] public string Login {  get; set; }
-    [Reactive] public string Email {  get; set; }
-    [Reactive] public string Password {  get; set; }
+    [Reactive] public string Login { get; set; }
+    [Reactive] public string Email { get; set; }
+    [Reactive] public string Password { get; set; }
 
     public ReactiveCommand<Unit, Unit> GoToLoginCommand { get; set; }
     public ReactiveCommand<Unit, Unit> ShowPasswordCommand { get; set; }

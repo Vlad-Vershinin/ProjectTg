@@ -1,5 +1,4 @@
 ﻿using Client.Models;
-using Client.Views;
 using Client.Views.DialogViews;
 using Client.ViewModels.DialogModels;
 using ReactiveUI;
@@ -13,6 +12,8 @@ using System;
 using System.Net.Http.Json;
 using Avalonia;
 using Microsoft.AspNetCore.SignalR.Client;
+using ReactiveUI.Fody.Helpers;
+using Client.Views;
 
 namespace Client.ViewModels;
 
@@ -21,22 +22,34 @@ public class ChatsViewModel : ReactiveObject
     private readonly MainViewModel _mainViewModel;
     private readonly string _apiUrl = "https://localhost:7068/api";
     private readonly HttpClient httpClient_ = new();
-    public readonly Guid currentUserId_;
+    [Reactive] public Guid currentUserId_ { get; set; }
     private HubConnection hubConnection_;
+    [Reactive] public Control SelectedChat { get; set; } = new ContentControl();
 
     public ObservableCollection<PrivateChat> Chats { get; } = new();
 
     public ReactiveCommand<Unit, Unit> CreateChatCommand { get; }
+    public ReactiveCommand<PrivateChat, Unit> OpenChatCommand { get; }
 
     public ChatsViewModel(MainViewModel mainVm)
     {
         _mainViewModel = mainVm;
 
-        currentUserId_ = mainVm.UserId;
-
         CreateChatCommand = ReactiveCommand.CreateFromTask(CreateChat);
+        OpenChatCommand = ReactiveCommand.Create<PrivateChat>(OpenChat);
+        
+        currentUserId_ = _mainViewModel.UserId;
+
         InitializerSignalR();
         LoadChats();
+    }
+
+    private void OpenChat(PrivateChat chat)
+    {
+        var chatViewModel = new ChatViewModel(chat, currentUserId_);
+        var chatView = new ChatView { DataContext = chatViewModel };
+
+        SelectedChat = chatView;
     }
 
     private async Task InitializerSignalR()
@@ -62,6 +75,8 @@ public class ChatsViewModel : ReactiveObject
 
     private async Task CreateChat()
     {
+        //currentUserId_ = _mainViewModel.UserId;
+
         var dialogView = new CreateChatView();
         var viewModel = new CreateChatViewModel(this);
         dialogView.DataContext = viewModel;

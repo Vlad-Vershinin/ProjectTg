@@ -1,11 +1,15 @@
-﻿using ReactiveUI;
+﻿using Avalonia.Controls;
+using Client.Models;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Reactive;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Client.ViewModels;
@@ -68,7 +72,29 @@ class LoginViewModel : ReactiveObject
             {
                 var token = await response.Content.ReadAsStringAsync();
 
-                mainViewModel_?.NavigateToChats();
+                var res = await httpClient_.GetAsync($"{baseURL_}/users/find?Login={Login}");
+
+                if (res.IsSuccessStatusCode)
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    var responseContent = await res.Content.ReadAsStringAsync();
+
+                    var user = JsonSerializer.Deserialize<User>(responseContent, options);
+
+                    mainViewModel_.UserId = user.Id;
+
+                    Debug.WriteLine($"{mainViewModel_.UserId}\n\n\n");
+
+                    if (mainViewModel_.UserId == Guid.Empty)
+                    {
+                        Debug.WriteLine("Id не получен");
+                    }
+
+                    await mainViewModel_?.NavigateToChats();
+                }
             }
 
         }

@@ -4,5 +4,43 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Client.Views.ChatView">
-  Welcome to Avalonia!
+	
+	<Grid RowDefinitions="*,Auto">
+		<!-- Область сообщений -->
+		<ScrollViewer Grid.Row="0"
+                     VerticalScrollBarVisibility="Auto">
+			<ItemsControl ItemsSource="{Binding Messages}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<!--<Border CornerRadius="8"
+                                Padding="10"
+                                Margin="5">
+							<StackPanel>
+								<TextBlock Text="{Binding Sender.Name}"
+                                           FontWeight="Bold"/>
+								<TextBlock Text="{Binding Text}"
+                                           TextWrapping="Wrap"/>
+							</StackPanel>
+						</Border>-->
+						<TextBlock Text="Aboba"/>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+
+		<!-- Панель ввода -->
+		<Grid Grid.Row="1"
+              ColumnDefinitions="*,Auto"
+              Margin="5">
+			<TextBox Grid.Column="0"
+                     Watermark="Введите сообщение..."
+                     Text="{Binding NewMessageText, Mode=TwoWay}"
+                     AcceptsReturn="False"/>
+			<Button Grid.Column="1"
+                    Content="Отправить"
+                    Command="{Binding SendMessageCommand}"
+                    Margin="5,0,0,0"
+                    Padding="15,0"/>
+		</Grid>
+	</Grid>
 </UserControl>

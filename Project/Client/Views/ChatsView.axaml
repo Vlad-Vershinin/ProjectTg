@@ -2,30 +2,43 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
              x:Class="Client.Views.ChatsView"
 			 xmlns:vm="using:Client.ViewModels"
 			 x:DataType="vm:ChatsViewModel">
-	<Grid ColumnDefinitions="300, *" ShowGridLines="True">
-		<ListBox ItemsSource="{Binding Chats}" SelectedItem="{Binding SelectedChat}">
+	<Grid ColumnDefinitions="300,*">
+		<ListBox ItemsSource="{Binding Chats}"
+                 SelectedItem="{Binding SelectedChat}"
+                 Margin="5">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-					<StackPanel Margin="10">
-						<TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-						<TextBlock Text="" Opacity="0.7"/>
-						<TextBlock Text="" FontSize="10"/>
-					</StackPanel>
+					<Button Command="{Binding DataContext.OpenChatCommand, 
+                            RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}"
+                            Margin="2">
+						<StackPanel>
+							<TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+						</StackPanel>
+					</Button>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
-		<Button Grid.Column="0"
-				HorizontalAlignment="Right"
-				VerticalAlignment="Bottom"
-				Content="+"
-				CornerRadius="90"
-				Command="{Binding CreateChatCommand}"
-				Foreground="White"/>
 
-		<ContentControl Content="{Binding SelectedChar}"/>
+		<Button Grid.Column="0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Content="+"
+                Width="40"
+                Height="40"
+                Margin="10"
+                Command="{Binding CreateChatCommand}"
+                Foreground="White"
+                Background="Blue"/>
+
+		<ContentControl Grid.Column="1"
+                       Content="{Binding SelectedChat}"
+                       Margin="5"/>
 	</Grid>
 </UserControl>

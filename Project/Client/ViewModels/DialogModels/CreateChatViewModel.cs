@@ -43,7 +43,7 @@ public class CreateChatViewModel : ReactiveObject
                     throw new Exception("Введите логин пользователя");
 
                 // Поиск пользователя по логину
-                var response = await _httpClient.GetAsync($"{_apiUrl}/users/find?username={Username}");
+                var response = await _httpClient.GetAsync($"{_apiUrl}/users/find?Login={Username}");
 
                 if (!response.IsSuccessStatusCode)
                     throw new Exception("Пользователь не найден");
