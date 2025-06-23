@@ -42,21 +42,26 @@ public class ChatViewModel : ReactiveObject
         try
         {
             var messages = await _httpClient.GetFromJsonAsync<Message[]>(
-                $"{_apiUrl}/chats/{_chat.Id}/messages");
+               $"{_apiUrl}/messages/{_chat.Id}");
 
+            Debug.WriteLine(_currentUserId);
             Messages.Clear();
             foreach (var message in messages)
             {
-                var Sender = await _httpClient.GetAsync($"{_apiUrl}/users/find?Id={_currentUserId}");
-                var user = JsonSerializer.Deserialize<User>(await Sender.Content.ReadAsStringAsync());
-
-                Messages.Add(new Message
+                if (message.Sender == null)
                 {
-                    Id = message.Id,
-                    Text = message.Text,
-                    SentAt = message.SentAt,
-                    Sender = user
-                });
+                    var Sender = await _httpClient.GetAsync($"{_apiUrl}/users/finduser?Id={message.SenderId}");
+                    var senderResponse = await Sender.Content.ReadAsStringAsync();
+                    var user = JsonSerializer.Deserialize<User>(senderResponse, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    message.Sender = user;
+                }
+
+                Messages.Add(message);
+
+                Debug.WriteLine($"Логин отправителя: {message.Sender.Login}");
             }
             Debug.WriteLine(Messages.Count);
         }
@@ -73,8 +78,7 @@ public class ChatViewModel : ReactiveObject
 
         await _httpClient.PostAsJsonAsync(
             $"{_apiUrl}/chats/{_chat.Id}/messages",
-            new { Text = NewMessageText, SenderId = _chat.User1Id }); // Замените на текущего пользователя
-
+            new { Text = NewMessageText, SenderId = _currentUserId });
         NewMessageText = string.Empty;
         await LoadMessages(); // Обновляем сообщения
     }

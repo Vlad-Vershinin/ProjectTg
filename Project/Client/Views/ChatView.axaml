@@ -12,17 +12,16 @@
 			<ItemsControl ItemsSource="{Binding Messages}">
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<!--<Border CornerRadius="8"
-                                Padding="10"
-                                Margin="5">
+						<Border CornerRadius="8"
+								Padding="10"
+								Margin="5">
 							<StackPanel>
-								<TextBlock Text="{Binding Sender.Name}"
-                                           FontWeight="Bold"/>
+								<TextBlock Text="{Binding Sender.Login}"
+											FontWeight="Bold"/>
 								<TextBlock Text="{Binding Text}"
-                                           TextWrapping="Wrap"/>
+											TextWrapping="Wrap"/>
 							</StackPanel>
-						</Border>-->
-						<TextBlock Text="Aboba"/>
+						</Border>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>

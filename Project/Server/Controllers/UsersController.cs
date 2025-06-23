@@ -28,9 +28,10 @@ public class UsersController : ControllerBase
         return Ok(user);
     }
 
-    [HttpGet("messages/{id}")]
-    public async Task<ActionResult<User>> GetUser(Guid id)
+    [HttpGet("finduser")]
+    public async Task<ActionResult<User>> GetUser(string Id)
     {
+        var id = Guid.Parse(Id);
         var user = await _db.Users.FindAsync(id);
 
         if (user == null)
