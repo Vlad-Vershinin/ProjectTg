@@ -34,7 +34,7 @@ public class AuthController : ControllerBase
             return BadRequest("Неверный логин или пароль");
         }
 
-        var token = GenerateJwtToken(loginDto.Login);
+        var token = GenerateJwtToken(user); // Передаём объект user вместо username
         return Ok(token);
     }
 
@@ -57,19 +57,25 @@ public class AuthController : ControllerBase
         db_.Users.Add(user);
         await db_.SaveChangesAsync();
 
-        var token = GenerateJwtToken(registerDto.Login);
+        var token = GenerateJwtToken(user); // Передаём объект user вместо username
         return Ok(token);
     }
 
-    private string GenerateJwtToken(string username)
+    private string GenerateJwtToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("DTEp86T1AB7YJVcs1OHecLNRPxHPFYf7JB27N9rqSGY="));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, user.Login),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+        };
+
         var token = new JwtSecurityToken(
             issuer: "https://localhost:7068",
             audience: "Client",
-            claims: new[] { new Claim(ClaimTypes.Name, username) },
+            claims: claims, // Используем массив claims
             expires: DateTime.Now.AddDays(2),
             signingCredentials: credentials
         );

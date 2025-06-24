@@ -9,6 +9,7 @@ namespace Client.ViewModels;
 public class MainViewModel : ViewModelBase
 {
     [Reactive] public Guid UserId { get; set; }
+    public string JwtToken { get; set; }
 
     [Reactive] public Control? CurrentContent { get; set; }
 

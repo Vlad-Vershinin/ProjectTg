@@ -72,6 +72,8 @@ class LoginViewModel : ReactiveObject
             {
                 var token = await response.Content.ReadAsStringAsync();
 
+                mainViewModel_.JwtToken = token;
+
                 var res = await httpClient_.GetAsync($"{baseURL_}/users/find?Login={Login}");
 
                 if (res.IsSuccessStatusCode)

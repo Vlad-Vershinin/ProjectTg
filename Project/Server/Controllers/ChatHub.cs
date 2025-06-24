@@ -64,16 +64,26 @@ public class ChatHub : Hub
 
         // Получаем собеседника
         var otherUserId = chat.User1Id == userId ? chat.User2Id : chat.User1Id;
-        var otherUserName = chat.User1Id == userId ? chat.User2.Username : chat.User1.Username;
 
-        // Отправляем сообщение обоим пользователям
+        // Отправляем сообщение обоим пользователям с полной информацией
         await Clients.Users(userId.ToString(), otherUserId.ToString())
             .SendAsync("ReceiveMessage", new
             {
                 ChatId = chatId,
-                Message = message,
-                SenderName = user.Username,
-                IsCurrentUser = false
+                Message = new
+                {
+                    message.Id,
+                    message.Text,
+                    message.SentAt,
+                    message.ChatId,
+                    message.SenderId,
+                    Sender = new
+                    {
+                        user.Id,
+                        user.Login,
+                        user.Username
+                    }
+                }
             });
 
         // Обновляем списки чатов

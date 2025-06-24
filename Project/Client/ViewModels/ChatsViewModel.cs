@@ -14,6 +14,10 @@ using Avalonia;
 using Microsoft.AspNetCore.SignalR.Client;
 using ReactiveUI.Fody.Helpers;
 using Client.Views;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.Json;
 
 namespace Client.ViewModels;
 
@@ -54,13 +58,58 @@ public class ChatsViewModel : ReactiveObject
 
     private async Task InitializerSignalR()
     {
+        if (_mainViewModel.JwtToken == null || string.IsNullOrEmpty(_mainViewModel.JwtToken))
+        {
+            throw new Exception("Jwt токен пустой");
+        } 
+
         hubConnection_ = new HubConnectionBuilder()
-            .WithUrl("https://localhost:7068/chat")
+            .WithUrl("https://localhost:7068/chat", options =>
+            {
+                options.AccessTokenProvider = () => Task.FromResult(_mainViewModel.JwtToken);
+            })
+            .WithAutomaticReconnect()
             .Build();
 
-        hubConnection_.On<Message>("ReceiveMessage", message =>
+        hubConnection_.On<Guid, object>("ReceiveMessage", (chatId, messageObj) =>
         {
-            // Обновляем UI с новым сообщением
+            // Преобразуем полученное сообщение
+            var messageJson = JsonSerializer.Serialize(messageObj);
+            var message = JsonSerializer.Deserialize<Message>(messageJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            // Находим чат в коллекции
+            var chat = Chats.FirstOrDefault(c => c.Id == chatId);
+            if (chat != null)
+            {
+                // Если открыт этот чат - добавляем сообщение
+                if (SelectedChat is ChatView chatView &&
+                    chatView.DataContext is ChatViewModel chatVm &&
+                    chatVm._chat.Id == chatId)
+                {
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    {
+                        chatVm.Messages.Add(message);
+                    });
+                }
+
+                // Обновляем порядок чатов (чтобы текущий поднялся наверх)
+                Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
+                {
+                    await LoadChats();
+                });
+            }
+        });
+
+        hubConnection_.On<IEnumerable<object>>("UpdateChatList", (chatsObj) =>
+        {
+            // Обновляем список чатов при изменениях
+            Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
+            {
+                await LoadChats();
+            });
         });
 
         try
@@ -70,6 +119,7 @@ public class ChatsViewModel : ReactiveObject
         catch (Exception ex)
         {
             // Обработка ошибок подключения
+            Debug.WriteLine($"SignalR connection error: {ex.Message}");
         }
     }
 
