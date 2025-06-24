@@ -25,8 +25,6 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
     {
-        Debug.WriteLine(loginDto.Login);
-        Console.WriteLine(loginDto.Login);
         var user = await db_.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Login == loginDto.Login);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
@@ -34,7 +32,7 @@ public class AuthController : ControllerBase
             return BadRequest("Неверный логин или пароль");
         }
 
-        var token = GenerateJwtToken(user); // Передаём объект user вместо username
+        var token = GenerateJwtToken(user);
         return Ok(token);
     }
 
@@ -57,7 +55,7 @@ public class AuthController : ControllerBase
         db_.Users.Add(user);
         await db_.SaveChangesAsync();
 
-        var token = GenerateJwtToken(user); // Передаём объект user вместо username
+        var token = GenerateJwtToken(user);
         return Ok(token);
     }
 
@@ -75,7 +73,7 @@ public class AuthController : ControllerBase
         var token = new JwtSecurityToken(
             issuer: "https://localhost:7068",
             audience: "Client",
-            claims: claims, // Используем массив claims
+            claims: claims,
             expires: DateTime.Now.AddDays(2),
             signingCredentials: credentials
         );

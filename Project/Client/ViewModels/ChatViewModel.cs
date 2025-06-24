@@ -8,9 +8,10 @@ using Client.Models;
 using System.Net.Http.Json;
 using System.Diagnostics;
 using System;
-using Microsoft.AspNet.SignalR.Client.Http;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR.Client;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Client.ViewModels;
 
@@ -24,40 +25,37 @@ public class ChatViewModel : ReactiveObject
 
     [Reactive] public string ChatName { get; set; }
     [Reactive] public ObservableCollection<Message> Messages { get; set; } = new();
-    [Reactive] public string NewMessageText { get; set; }
+    [Reactive] public string NewMessageText { get; set; } = string.Empty;
 
     public ReactiveCommand<Unit, Unit> SendMessageCommand { get; }
 
-    public ChatViewModel(PrivateChat chat, Guid userId)
+    public ChatViewModel(PrivateChat chat, Guid userId, HubConnection hubConnection)
     {
         _chat = chat;
         ChatName = chat.Name;
         _currentUserId = userId;
+        _hubConnection = hubConnection;
 
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl("https://localhost:7068/chat")
-            .WithAutomaticReconnect()
-            .Build();
-
-        InitializeHubConnection();
-
-        SendMessageCommand = ReactiveCommand.CreateFromTask(SendMessage);
-        LoadMessages();
-    }
-
-    private void InitializeHubConnection()
-    {
-        _hubConnection.On<Message>("ReceiveMessage", message =>
+        _hubConnection.On<Guid, Message>("ReceiveMessage", (receivedChatId, message) =>
         {
-            if (message.ChatId == _chat.Id)
+            if (receivedChatId == _chat.Id)
             {
                 Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                 {
-                    Messages.Add(message);
+                    if (!Messages.Any(m => m.Id == message.Id))
+                    {
+                        Messages.Add(message);
+                    }
                 });
             }
         });
 
+        SendMessageCommand = ReactiveCommand.CreateFromTask(SendMessage);
+        //LoadMessages();
+    }
+
+    private void InitializeHubConnection()
+    {
         _hubConnection.StartAsync().ContinueWith(task =>
         {
             if (task.IsFaulted)
@@ -65,16 +63,17 @@ public class ChatViewModel : ReactiveObject
                 Debug.WriteLine("Ошибка подключения к Hub");
             }
         });
+
+        _hubConnection.Reconnected += _ => Task.Run(LoadMessages);
     }
 
-    private async Task LoadMessages()
+    public async Task LoadMessages()
     {
         try
         {
             var messages = await _httpClient.GetFromJsonAsync<Message[]>(
                $"{_apiUrl}/messages/{_chat.Id}");
 
-            Debug.WriteLine(_currentUserId);
             Messages.Clear();
             foreach (var message in messages)
             {
@@ -90,10 +89,7 @@ public class ChatViewModel : ReactiveObject
                 }
 
                 Messages.Add(message);
-
-                Debug.WriteLine($"Логин отправителя: {message.Sender.Login}");
             }
-            Debug.WriteLine(Messages.Count);
         }
         catch (Exception ex)
         {
@@ -103,22 +99,26 @@ public class ChatViewModel : ReactiveObject
 
     private async Task SendMessage()
     {
-        if (string.IsNullOrWhiteSpace(NewMessageText))
-            return;
-
         try
         {
+            if (_hubConnection.State != HubConnectionState.Connected)
+            {
+                await _hubConnection.StartAsync();
+
+                if (_hubConnection.State != HubConnectionState.Connected)
+                {
+                    throw new Exception("SignalR connection is not active");
+                }
+            }
+
             await _hubConnection.InvokeAsync("SendMessage", _chat.Id, NewMessageText);
             NewMessageText = string.Empty;
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Ошибка отправки сообщения: {ex.Message}");
-            // Можно добавить fallback через HTTP API
             await _httpClient.PostAsJsonAsync(
                 $"{_apiUrl}/chats/{_chat.Id}/messages",
                 new { Text = NewMessageText, SenderId = _currentUserId });
-            NewMessageText = string.Empty;
             await LoadMessages();
         }
     }

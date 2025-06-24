@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.Extensions.Logging;
 
 namespace Client.ViewModels;
 
@@ -30,10 +32,10 @@ public class ChatsViewModel : ReactiveObject
     private HubConnection hubConnection_;
     [Reactive] public Control SelectedChat { get; set; } = new ContentControl();
 
-    public ObservableCollection<PrivateChat> Chats { get; } = new();
+    [Reactive] public ObservableCollection<PrivateChat> Chats { get; set; } = new();
 
-    public ReactiveCommand<Unit, Unit> CreateChatCommand { get; }
-    public ReactiveCommand<PrivateChat, Unit> OpenChatCommand { get; }
+    public ReactiveCommand<Unit, Unit> CreateChatCommand { get; set; }
+    public ReactiveCommand<PrivateChat, Unit> OpenChatCommand { get; set; }
 
     public ChatsViewModel(MainViewModel mainVm)
     {
@@ -45,15 +47,16 @@ public class ChatsViewModel : ReactiveObject
         currentUserId_ = _mainViewModel.UserId;
 
         InitializerSignalR();
-        LoadChats();
+        //LoadChats();
     }
 
     private void OpenChat(PrivateChat chat)
     {
-        var chatViewModel = new ChatViewModel(chat, currentUserId_);
+        var chatViewModel = new ChatViewModel(chat, currentUserId_, hubConnection_);
         var chatView = new ChatView { DataContext = chatViewModel };
 
         SelectedChat = chatView;
+        chatViewModel.LoadMessages().ConfigureAwait(false);
     }
 
     private async Task InitializerSignalR()
@@ -61,44 +64,61 @@ public class ChatsViewModel : ReactiveObject
         if (_mainViewModel.JwtToken == null || string.IsNullOrEmpty(_mainViewModel.JwtToken))
         {
             throw new Exception("Jwt токен пустой");
-        } 
+        }
 
-        hubConnection_ = new HubConnectionBuilder()
-            .WithUrl("https://localhost:7068/chat", options =>
-            {
-                options.AccessTokenProvider = () => Task.FromResult(_mainViewModel.JwtToken);
-            })
+        //hubConnection_ = new HubConnectionBuilder()
+        //    .WithUrl("https://localhost:7068/chat", options =>
+        //    {
+        //        options.AccessTokenProvider = () => Task.FromResult(_mainViewModel.JwtToken);
+        //    })
+        //    .WithAutomaticReconnect(new[] {
+        //        TimeSpan.Zero, // Первая попытка сразу
+        //        TimeSpan.FromSeconds(1),
+        //        TimeSpan.FromSeconds(5),
+        //        TimeSpan.FromSeconds(10)
+        //    })
+        //    .Build();
+
+        hubConnection_ = new HubConnectionBuilder().WithUrl("https://localhost:7068/chat", options =>
+        {
+            options.SkipNegotiation = true;
+            options.Transports = HttpTransportType.WebSockets;
+            options.AccessTokenProvider = () => Task.FromResult(_mainViewModel?.JwtToken);
+        })
+            .ConfigureLogging(log => log.AddConsole())
             .WithAutomaticReconnect()
             .Build();
 
-        hubConnection_.On<Guid, object>("ReceiveMessage", (chatId, messageObj) =>
+        // Обработчики событий
+        hubConnection_.Closed += async (error) =>
         {
-            // Преобразуем полученное сообщение
-            var messageJson = JsonSerializer.Serialize(messageObj);
-            var message = JsonSerializer.Deserialize<Message>(messageJson, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            Debug.WriteLine($"Соединение закрыто: {error?.Message}");
+            await Task.Delay(1000);
+            await hubConnection_.StartAsync();
+        };
 
-            // Находим чат в коллекции
+        hubConnection_.Reconnected += (connectionId) =>
+        {
+            Debug.WriteLine($"Соединение восстановлено: {connectionId}");
+            return Task.CompletedTask;
+        };
+
+        hubConnection_.On<Guid, Message>("ReceiveMessage", (chatId, message) =>
+        {
             var chat = Chats.FirstOrDefault(c => c.Id == chatId);
             if (chat != null)
             {
-                // Если открыт этот чат - добавляем сообщение
-                if (SelectedChat is ChatView chatView &&
-                    chatView.DataContext is ChatViewModel chatVm &&
-                    chatVm._chat.Id == chatId)
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                 {
-                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    // Если чат открыт - добавляем сообщение
+                    if (SelectedChat is ChatView chatView &&
+                        chatView.DataContext is ChatViewModel chatVm &&
+                        chatVm._chat.Id == chatId)
                     {
                         chatVm.Messages.Add(message);
-                    });
-                }
-
-                // Обновляем порядок чатов (чтобы текущий поднялся наверх)
-                Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
-                {
-                    await LoadChats();
+                    }
+                    // Обновляем список чатов
+                    LoadChats().ConfigureAwait(false);
                 });
             }
         });
@@ -106,6 +126,7 @@ public class ChatsViewModel : ReactiveObject
         hubConnection_.On<IEnumerable<object>>("UpdateChatList", (chatsObj) =>
         {
             // Обновляем список чатов при изменениях
+            Debug.WriteLine($"=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-==-=--=-=");
             Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
             {
                 await LoadChats();
@@ -169,25 +190,6 @@ public class ChatsViewModel : ReactiveObject
             {
                 var newChat = await response.Content.ReadFromJsonAsync<PrivateChat>();
                 Chats.Add(newChat);
-            }
-        }
-        catch (Exception ex)
-        {
-            // Обработка ошибок
-        }
-    }
-
-    public async Task SendMessage(Guid chatId, string text)
-    {
-        try
-        {
-            var response = await httpClient_.PostAsJsonAsync(
-                $"{_apiUrl}/chats/{chatId}/messages",
-                new { Text = text, SenderId = currentUserId_ });
-
-            if (!response.IsSuccessStatusCode)
-            {
-                // Обработка ошибок
             }
         }
         catch (Exception ex)

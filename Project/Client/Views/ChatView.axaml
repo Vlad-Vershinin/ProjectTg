@@ -5,7 +5,8 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Client.Views.ChatView">
 	
-	<Grid RowDefinitions="*,Auto">
+	<Grid RowDefinitions="*,Auto"
+		  Background="#1A1A1A">
 		<!-- Область сообщений -->
 		<ScrollViewer Grid.Row="0"
                      VerticalScrollBarVisibility="Auto">
@@ -39,7 +40,9 @@
                     Content="Отправить"
                     Command="{Binding SendMessageCommand}"
                     Margin="5,0,0,0"
-                    Padding="15,0"/>
+                    Padding="15,0"
+					VerticalAlignment="Stretch"
+					VerticalContentAlignment="Center"/>
 		</Grid>
 	</Grid>
 </UserControl>

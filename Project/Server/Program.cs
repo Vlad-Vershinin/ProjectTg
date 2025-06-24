@@ -17,7 +17,6 @@ public class Program
             oprions.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         builder.Services.AddControllers();
-        builder.Services.AddSignalR();
 
         var jwtKey = builder.Configuration["Jwt:Secret"] ??
             throw new ArgumentNullException("Jwt:Key", "JWT Key is not configured");
@@ -69,6 +68,8 @@ public class Program
                       .AllowCredentials();
             });
         });
+
+        builder.Services.AddSignalR();
 
         var app = builder.Build();
 

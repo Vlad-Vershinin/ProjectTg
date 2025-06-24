@@ -4,6 +4,8 @@ using Server.Data;
 using Server.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
+using static System.Net.Mime.MediaTypeNames;
+using System.Reflection;
 
 namespace Server.Controllers;
 
@@ -62,31 +64,24 @@ public class ChatHub : Hub
         _context.Messages.Add(message);
         await _context.SaveChangesAsync();
 
-        // Получаем собеседника
         var otherUserId = chat.User1Id == userId ? chat.User2Id : chat.User1Id;
 
-        // Отправляем сообщение обоим пользователям с полной информацией
         await Clients.Users(userId.ToString(), otherUserId.ToString())
-            .SendAsync("ReceiveMessage", new
+            .SendAsync("ReceiveMessage", chatId, new
             {
-                ChatId = chatId,
-                Message = new
+                message.Id,
+                message.Text,
+                message.SentAt,
+                message.ChatId,
+                message.SenderId,
+                Sender = new
                 {
-                    message.Id,
-                    message.Text,
-                    message.SentAt,
-                    message.ChatId,
-                    message.SenderId,
-                    Sender = new
-                    {
-                        user.Id,
-                        user.Login,
-                        user.Username
-                    }
+                    user.Id,
+                    user.Login,
+                    user.Username
                 }
             });
 
-        // Обновляем списки чатов
         await SendUpdatedChatList(userId);
         await SendUpdatedChatList(otherUserId);
     }
