@@ -35,6 +35,8 @@ public class ChatsViewModel : ReactiveObject
     [Reactive] public ObservableCollection<PrivateChat> Chats { get; set; } = new();
 
     public ReactiveCommand<Unit, Unit> CreateChatCommand { get; set; }
+    public ReactiveCommand<Unit, Unit> OpenProfileCommand { get; set; }
+    public ReactiveCommand<Unit, Unit> LeaveCommand { get; set; }
     public ReactiveCommand<PrivateChat, Unit> OpenChatCommand { get; set; }
 
     public ChatsViewModel(MainViewModel mainVm)
@@ -43,7 +45,14 @@ public class ChatsViewModel : ReactiveObject
 
         CreateChatCommand = ReactiveCommand.CreateFromTask(CreateChat);
         OpenChatCommand = ReactiveCommand.Create<PrivateChat>(OpenChat);
-        
+        OpenProfileCommand = ReactiveCommand.CreateFromTask(OpenProfile);
+        LeaveCommand = ReactiveCommand.CreateFromTask(async () =>
+        {
+            await hubConnection_.StopAsync();
+            await hubConnection_.DisposeAsync();
+            hubConnection_ = null;
+            mainVm.NavigateToLogin();
+        });
         currentUserId_ = _mainViewModel.UserId;
 
         InitializerSignalR();
@@ -56,6 +65,13 @@ public class ChatsViewModel : ReactiveObject
 
         SelectedChat = chatView;
         chatViewModel.LoadMessages().ConfigureAwait(false);
+    }
+
+    private async Task OpenProfile()
+    {
+        var profileView = new ProfileWIndowView();
+
+        var result = await profileView.ShowDialog<bool>(GetMainWindow());
     }
 
     private async Task InitializerSignalR()
@@ -75,11 +91,11 @@ public class ChatsViewModel : ReactiveObject
             .WithAutomaticReconnect()
             .Build();
 
-        hubConnection_.Closed += async (error) =>
-        {
-            await Task.Delay(1000);
-            await hubConnection_.StartAsync();
-        };
+        //hubConnection_.Closed += async (error) =>
+        //{
+        //    await Task.Delay(1000);
+        //    await hubConnection_.StartAsync();
+        //};
 
         hubConnection_.Reconnected += (connectionId) =>
         {
@@ -124,8 +140,6 @@ public class ChatsViewModel : ReactiveObject
 
     private async Task CreateChat()
     {
-        //currentUserId_ = _mainViewModel.UserId;
-
         var dialogView = new CreateChatView();
         var viewModel = new CreateChatViewModel(this);
         dialogView.DataContext = viewModel;
@@ -147,6 +161,7 @@ public class ChatsViewModel : ReactiveObject
             Chats.Clear();
             foreach (var chat in chats)
             {
+                chat.CurrentUserId = currentUserId_;
                 Chats.Add(chat);
             }
         }

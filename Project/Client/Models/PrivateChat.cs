@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace Client.Models;
@@ -13,4 +14,7 @@ public class PrivateChat : Chat
 
     [JsonIgnore]
     public User? User2 { get; set; }
+
+    [JsonIgnore]
+    public Guid? CurrentUserId { get; set; }
 }

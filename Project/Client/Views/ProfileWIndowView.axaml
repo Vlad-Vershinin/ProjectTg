@@ -1,0 +1,82 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="600"
+        x:Class="Client.Views.ProfileWIndowView"
+		xmlns:vm="using:Client.ViewModels"
+        Title="Профиль"
+		Height="600"
+		Width="400"
+		CanResize="False"
+		SystemDecorations="None"
+		Background="Transparent"
+		WindowStartupLocation="CenterOwner">
+	<Window.Styles>
+		<Style Selector="TextBlock">
+			<Setter Property="FontSize" Value="15"/>
+		</Style>
+
+		<Style Selector="TextBox">
+			<Setter Property="FontSize" Value="15"/>
+		</Style>
+	</Window.Styles>
+
+	<Border BorderThickness="1" BorderBrush="Black">
+		<Grid RowDefinitions="Auto, *, *" ColumnDefinitions="0.8*, *">
+			<StackPanel Grid.Column="0" Grid.Row="0"
+						HorizontalAlignment="Center"
+						VerticalAlignment="Center">
+				<Image Source="/Assets/avalonia-logo.ico"
+					   Width="50"
+					   Height="50"
+					   Margin="5"/>
+				<Button Content="Выбрать аватар"/>
+			</StackPanel>
+
+			<StackPanel Grid.Column="1"
+						Margin="5">
+				<StackPanel Margin="5">
+					<TextBlock Text="Логин" Margin="0 0 0 5"/>
+					<TextBox IsEnabled="False"/>
+				</StackPanel>
+				<StackPanel Margin="5">
+					<TextBlock Text="Имя пользователя" Margin="0 0 0 5"/>
+					<TextBox Watermark="Ваше имя..."/>
+				</StackPanel>
+			</StackPanel>
+
+			<StackPanel Grid.Row="1"
+						Grid.ColumnSpan="2"
+						Margin="5">
+				<StackPanel Margin="5">
+					<TextBlock Text="Почта" Margin="0 0 0 5"/>
+					<TextBox Watermark="Почта..."/>
+				</StackPanel>
+
+				<StackPanel Margin="5">
+					<TextBlock Text="Описание" Margin="0 0 0 5"/>
+					<TextBox Watermark="Описание..."
+							 AcceptsReturn="True"
+							 AcceptsTab="True"
+							 MinLines="10"
+							 MaxLength="10"/>
+				</StackPanel>
+			</StackPanel>
+		
+			<StackPanel Orientation="Horizontal"
+						HorizontalAlignment="Right"
+						Grid.Row="2"
+						Grid.Column="1"
+						VerticalAlignment="Bottom"
+						Margin="5">
+				<Button Content="Сохранить"
+						Background="Transparent"
+						Margin="5"/>
+				<Button Content="Отмена"
+						Margin="5"
+						Background="Transparent"/>
+			</StackPanel>
+		</Grid>
+	</Border>
+</Window>

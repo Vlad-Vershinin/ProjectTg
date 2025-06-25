@@ -5,10 +5,6 @@ using ReactiveUI.Fody.Helpers;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Client.Models;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Controls;
-using Avalonia;
-using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 

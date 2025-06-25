@@ -10,7 +10,6 @@ using System.Diagnostics;
 using System;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR.Client;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Client.ViewModels;
@@ -44,10 +43,8 @@ public class ChatViewModel : ReactiveObject
                 {
                     if (!Messages.Any(m => m.Id == message.Message.Id))
                     {
-                        // Убедимся, что Sender не null
                         if (message.Message.Sender == null && message.Message.SenderId != Guid.Empty)
                         {
-                            // Если Sender null, но есть SenderId, загрузим пользователя
                             _ = LoadSenderInfo(message.Message);
                         }
                         else
@@ -60,7 +57,6 @@ public class ChatViewModel : ReactiveObject
         });
 
         SendMessageCommand = ReactiveCommand.CreateFromTask(SendMessage);
-        //LoadMessages();
     }
 
     private void InitializeHubConnection()

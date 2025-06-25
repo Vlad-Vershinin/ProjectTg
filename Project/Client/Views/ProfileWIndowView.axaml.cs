@@ -2,11 +2,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace Client.Views.DialogViews;
+namespace Client.Views;
 
-public partial class CreateChatView : Window
+public partial class ProfileWIndowView : Window
 {
-    public CreateChatView()
+    public ProfileWIndowView()
     {
         InitializeComponent();
     }

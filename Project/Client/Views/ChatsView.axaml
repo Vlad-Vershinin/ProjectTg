@@ -2,43 +2,91 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:fa="http://schemas.awesome.incremented/avalonia/fontawesome"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
              x:Class="Client.Views.ChatsView"
-			 xmlns:vm="using:Client.ViewModels"
-			 x:DataType="vm:ChatsViewModel">
-	<Grid ColumnDefinitions="300,*">
-		<ListBox ItemsSource="{Binding Chats}"
-                 SelectedItem="{Binding SelectedChat}"
-                 Margin="5">
-			<ListBox.ItemTemplate>
-				<DataTemplate>
-					<Button Command="{Binding DataContext.OpenChatCommand, 
-                            RelativeSource={RelativeSource AncestorType=ListBox}}"
-                            CommandParameter="{Binding}"
-                            Margin="2">
-						<StackPanel>
-							<TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-						</StackPanel>
-					</Button>
-				</DataTemplate>
-			</ListBox.ItemTemplate>
-		</ListBox>
+             xmlns:vm="using:Client.ViewModels"
+             x:DataType="vm:ChatsViewModel"
+			 xmlns:conv="using:Client.Convertors">
+	<UserControl.Resources>
+		<conv:LastMessageConverter x:Key="LastMessageConverter"/>
+		
+	</UserControl.Resources>
+	
+	<UserControl.Styles>
+		<Style Selector="MenuItem">
+			<Setter Property="Background" Value="#1A1A1A"/>
+		</Style>
+	</UserControl.Styles>
 
-		<Button Grid.Column="0"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Content="+"
-                Width="40"
-                Height="40"
-                Margin="10"
-                Command="{Binding CreateChatCommand}"
-                Foreground="White"
-                Background="Blue"/>
+	<Border BorderBrush="#212121" BorderThickness="1">
+        <Grid ColumnDefinitions="300,*">
+            <!-- Левая колонка (список чатов) -->
+            <Grid Grid.Column="0" RowDefinitions="Auto,*,Auto">
+			    <Grid ColumnDefinitions="7.5*, *">
+                <!-- Строка поиска -->
+                    <TextBox Grid.Row="0"
+                             Height="35"
+                             Margin="5"
+                             Watermark="Поиск чатов..."
+                             Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.Styles>
+                            <Style Selector="TextBox">
+                                <Setter Property="Background" Value="#F0F0F0"/>
+                                <Setter Property="BorderBrush" Value="#CCCCCC"/>
+                            </Style>
+                        </TextBox.Styles>
+                    </TextBox>
 
-		<ContentControl Grid.Column="1"
-                       Content="{Binding SelectedChat}"
-                       Margin="5"/>
-	</Grid>
+				    <Button Grid.Column="1"
+						    Content="S">
+					    <Button.Flyout>
+						    <MenuFlyout>
+							    <MenuItem Header="Профиль" Command="{Binding OpenProfileCommand}"/>
+							    <MenuItem Header="Создать чат" Command="{Binding CreateChatCommand}"/>
+							    <MenuItem Header="Выйти" Command="{Binding LeaveCommand}"/>
+						    </MenuFlyout>
+					    </Button.Flyout>
+				    </Button>
+                </Grid>
+				
+                <!-- Список чатов -->
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding Chats}"
+                         SelectedItem="{Binding SelectedChat}"
+                         Margin="5">
+					<ListBox.Styles>
+						<Style Selector="ListBoxItem">
+							<Setter Property="Margin" Value="0"/>
+							<Setter Property="Padding" Value="0"/>
+						</Style>
+					</ListBox.Styles>
+					<ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.OpenChatCommand, 
+                                    RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                    CommandParameter="{Binding}"
+                                    Margin="2"
+									HorizontalAlignment="Stretch"
+									VerticalAlignment="Stretch"
+									CornerRadius="0">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold"
+											   HorizontalAlignment="Center"
+											   VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+         
+            <!-- Правая колонка (выбранный чат) -->
+            <ContentControl Grid.Column="1"
+                            Content="{Binding SelectedChat}"
+                            Margin="5"/>
+        </Grid>
+	</Border>
 </UserControl>

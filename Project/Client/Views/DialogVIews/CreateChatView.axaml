@@ -5,30 +5,28 @@
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
         x:Class="Client.Views.DialogViews.CreateChatView"
 		xmlns:vm="using:Client.ViewModels.DialogModels"
-		x:DataType="vm:CreateChatViewModel">
-	<StackPanel Margin="20" Spacing="10">
-		<ComboBox x:Name="ChatTypeComboBox" SelectedIndex="0">
-			<ComboBoxItem>Приватный чат</ComboBoxItem>
-			<ComboBoxItem>Групповой чат</ComboBoxItem>
-		</ComboBox>
+		x:DataType="vm:CreateChatViewModel"
+		Height="600"
+		Width="400"
+		CanResize="False"
+		SystemDecorations="None"
+		Background="Transparent"
+		WindowStartupLocation="CenterOwner">
+	<Border BorderThickness="1"
+			BorderBrush="Black">
+		<StackPanel Margin="20" Spacing="10">
+			<TextBlock Text="Создать чат"/>
 
-		<!-- Форма для приватного чата -->
-		<StackPanel x:Name="PrivateChatForm" IsVisible="True" Spacing="5">
-			<TextBlock Text="Логин пользователя:"/>
-			<TextBox x:Name="UsernameInput" Watermark="Введите логин" Text="{Binding Username}"/>
-		</StackPanel>
+			<!-- Форма для приватного чата -->
+			<StackPanel Spacing="5">
+				<TextBlock Text="Логин пользователя:"/>
+				<TextBox Watermark="Введите логин" Text="{Binding Username}"/>
+			</StackPanel>
 
-		<!-- Форма для группового чата -->
-		<StackPanel x:Name="GroupChatForm" IsVisible="False" Spacing="5">
-			<TextBlock Text="Название группы:"/>
-			<TextBox x:Name="GroupNameInput" Watermark="Введите название" Text="{Binding GroupName}"/>
-
-			<StackPanel Orientation="Horizontal" Spacing="10">
-				<RadioButton x:Name="PublicGroupRadio" Content="Публичный" IsChecked="True"/>
-				<RadioButton Content="По приглашению"/>
+			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+				<Button Content="Отмена"/>
+				<Button Content="Создать" Command="{Binding CreateCommand}" HorizontalAlignment="Right"/>
 			</StackPanel>
 		</StackPanel>
-
-		<Button Content="Создать" Command="{Binding CreateCommand}" HorizontalAlignment="Right"/>
-	</StackPanel>
+	</Border>
 </Window>
