@@ -10,7 +10,7 @@
 		  Background="#1A1A1A">
 		<StackPanel Grid.Column="1"
 					VerticalAlignment="Center">
-
+			<Image Source="{Binding Img}"/>
 			<TextBlock Text="Вход в аккаунт"
 					   VerticalAlignment="Center"
 					   HorizontalAlignment="Center"/>

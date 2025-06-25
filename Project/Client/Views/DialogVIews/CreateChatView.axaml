@@ -6,7 +6,7 @@
         x:Class="Client.Views.DialogViews.CreateChatView"
 		xmlns:vm="using:Client.ViewModels.DialogModels"
 		x:DataType="vm:CreateChatViewModel"
-		Height="600"
+		Height="300"
 		Width="400"
 		CanResize="False"
 		SystemDecorations="None"
@@ -24,7 +24,7 @@
 			</StackPanel>
 
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-				<Button Content="Отмена"/>
+				<Button Content="Отмена" Command="{Binding CloseCommand}"/>
 				<Button Content="Создать" Command="{Binding CreateCommand}" HorizontalAlignment="Right"/>
 			</StackPanel>
 		</StackPanel>

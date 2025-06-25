@@ -72,7 +72,9 @@
 									HorizontalAlignment="Stretch"
 									VerticalAlignment="Stretch"
 									CornerRadius="0">
-                                <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+									<Image Width="30" Height="30" Margin="0,0,10,0"
+                                            Source="{Binding OtherUserAvatarUrl}"/>
                                     <TextBlock Text="{Binding Name}" FontWeight="Bold"
 											   HorizontalAlignment="Center"
 											   VerticalAlignment="Center"/>

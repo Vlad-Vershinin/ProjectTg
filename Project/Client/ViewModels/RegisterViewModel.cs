@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Reactive;
@@ -19,7 +20,9 @@ class RegisterViewModel : ReactiveObject
     [Reactive] public char PasswordChar { get; set; } = '•';
 
     [Reactive] public string Login { get; set; }
+    [EmailAddress]
     [Reactive] public string Email { get; set; }
+    [MinLength(8)]
     [Reactive] public string Password { get; set; }
 
     public ReactiveCommand<Unit, Unit> GoToLoginCommand { get; set; }

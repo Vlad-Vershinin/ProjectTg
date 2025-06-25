@@ -43,6 +43,32 @@ public class UsersController : ControllerBase
         return Ok(user);
     }
 
+    [HttpGet("getuser/{userId}")]
+    public async Task<IActionResult> GetUserWithAvatar(Guid userId)
+    {
+        var user = await _db.Users
+            .AsNoTracking()
+            .Select(u => new
+            {
+                u.Id,
+                u.Login,
+                u.UserName,
+                u.Email,
+                u.Description,
+                AvatarUrl = !string.IsNullOrEmpty(u.ImagePath)
+                    ? $"{Request.Scheme}://{Request.Host}/{u.ImagePath.TrimStart('/')}"
+                    : $"{Request.Scheme}://{Request.Host}/Assets/profile.png"
+            })
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return NotFound("Пользователь не найден");
+        }
+
+        return Ok(user);
+    }
+
     [HttpPost("saveuser")]
     public async Task<IActionResult> UpdateUser([FromForm] UserUpdateDto userDto)
     {

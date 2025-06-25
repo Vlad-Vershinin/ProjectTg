@@ -1,4 +1,5 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 using Client.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;

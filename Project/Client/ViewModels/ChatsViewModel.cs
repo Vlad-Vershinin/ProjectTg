@@ -129,7 +129,7 @@ public class ChatsViewModel : ReactiveObject
         }
     }
 
-    private async Task LoadChats()
+    public async Task LoadChats()
     {
         try
         {
@@ -140,6 +140,8 @@ public class ChatsViewModel : ReactiveObject
             foreach (var chat in chats)
             {
                 chat.CurrentUserId = currentUserId_;
+                var otherUserId = chat.User1Id == currentUserId_ ? chat.User2Id : chat.User1Id;
+                chat.OtherUserAvatarUrl = $"{_apiUrl}/users/getuser/{otherUserId}";
                 Chats.Add(chat);
             }
         }

@@ -19,50 +19,42 @@ public class CreateChatViewModel : ReactiveObject
 
     [Reactive] public string Username { get; set; }
     [Reactive] public string GroupName { get; set; }
-    [Reactive] public bool IsPublic { get; set; } = true;
-    [Reactive] public bool IsPrivateSelected { get; set; } = true;
 
     public ReactiveCommand<Unit, Unit> CreateCommand { get; }
+    public ReactiveCommand<Unit, Unit> CloseCommand { get; }
 
     public CreateChatViewModel(ChatsViewModel parentVm)
     {
         _parentVm = parentVm;
         CreateCommand = ReactiveCommand.CreateFromTask(CreateChat);
+        CloseCommand = ReactiveCommand.CreateFromTask(async () =>
+        {
+            CloseDialog(true);
+        });
     }
 
     private async Task CreateChat()
     {
         try
         {
-            if (IsPrivateSelected)
+            if (string.IsNullOrWhiteSpace(Username))
+                throw new Exception("Введите логин пользователя");
+
+            var response = await _httpClient.GetAsync($"{_apiUrl}/users/find?Login={Username}");
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Пользователь не найден");
+
+            var userJson = await response.Content.ReadAsStringAsync();
+            var foundUser = JsonSerializer.Deserialize<User>(userJson, new JsonSerializerOptions
             {
-                if (string.IsNullOrWhiteSpace(Username))
-                    throw new Exception("Введите логин пользователя");
+                PropertyNameCaseInsensitive = true
+            });
 
-                // Поиск пользователя по логину
-                var response = await _httpClient.GetAsync($"{_apiUrl}/users/find?Login={Username}");
-
-                if (!response.IsSuccessStatusCode)
-                    throw new Exception("Пользователь не найден");
-
-                var userJson = await response.Content.ReadAsStringAsync();
-                var foundUser = JsonSerializer.Deserialize<User>(userJson, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-                await _parentVm.CreatePrivateChat(
-                    _parentVm.currentUserId_,
-                    foundUser.Id            
-                );
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(GroupName))
-                    throw new Exception("Введите название группы");
-                
-
-            }
+            await _parentVm.CreatePrivateChat(
+                _parentVm.currentUserId_,
+                foundUser.Id            
+            );
 
             CloseDialog(true);
         }

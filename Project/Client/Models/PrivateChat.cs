@@ -17,4 +17,6 @@ public class PrivateChat : Chat
 
     [JsonIgnore]
     public Guid? CurrentUserId { get; set; }
+    [JsonIgnore]
+    public string OtherUserAvatarUrl { get; set; }
 }

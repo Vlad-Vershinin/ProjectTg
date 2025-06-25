@@ -25,6 +25,7 @@ public class ChatViewModel : ReactiveObject
     [Reactive] public string ChatName { get; set; }
     [Reactive] public ObservableCollection<Message> Messages { get; set; } = new();
     [Reactive] public string NewMessageText { get; set; } = string.Empty;
+    [Reactive] public string OtherUserAvatarUrl { get; set; }
 
     public ReactiveCommand<Unit, Unit> SendMessageCommand { get; }
 
@@ -34,6 +35,9 @@ public class ChatViewModel : ReactiveObject
         ChatName = chat.Name;
         _currentUserId = userId;
         _hubConnection = hubConnection;
+
+        var otherUserId = chat.User1Id == userId ? chat.User2Id : chat.User1Id;
+        OtherUserAvatarUrl = $"{_apiUrl}/users/getuser/{otherUserId}";
 
         _hubConnection.On<MessageRes>("ReceiveMessage", (message) =>
         {
