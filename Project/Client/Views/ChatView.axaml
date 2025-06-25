@@ -9,18 +9,25 @@
 		  Background="#1A1A1A">
 		<!-- Область сообщений -->
 		<ScrollViewer Grid.Row="0"
-                     VerticalScrollBarVisibility="Auto">
+              VerticalScrollBarVisibility="Auto"
+              x:Name="MessageScrollViewer">
 			<ItemsControl ItemsSource="{Binding Messages}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel VerticalAlignment="Bottom"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
 						<Border CornerRadius="8"
 								Padding="10"
 								Margin="5">
 							<StackPanel>
-								<TextBlock Text="{Binding Sender.Login}"
-											FontWeight="Bold"/>
+								<TextBlock Text="{Binding Sender.UserName}"
+										  FontWeight="Bold"/>
 								<TextBlock Text="{Binding Text}"
-											TextWrapping="Wrap"/>
+											TextWrapping="Wrap">
+								</TextBlock>
 							</StackPanel>
 						</Border>
 					</DataTemplate>
@@ -42,7 +49,8 @@
                     Margin="5,0,0,0"
                     Padding="15,0"
 					VerticalAlignment="Stretch"
-					VerticalContentAlignment="Center"/>
+					VerticalContentAlignment="Center"
+					HotKey="Enter"/>
 		</Grid>
 	</Grid>
 </UserControl>

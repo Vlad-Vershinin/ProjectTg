@@ -47,7 +47,6 @@ public class ChatsViewModel : ReactiveObject
         currentUserId_ = _mainViewModel.UserId;
 
         InitializerSignalR();
-        //LoadChats();
     }
 
     private void OpenChat(PrivateChat chat)
@@ -66,19 +65,6 @@ public class ChatsViewModel : ReactiveObject
             throw new Exception("Jwt токен пустой");
         }
 
-        //hubConnection_ = new HubConnectionBuilder()
-        //    .WithUrl("https://localhost:7068/chat", options =>
-        //    {
-        //        options.AccessTokenProvider = () => Task.FromResult(_mainViewModel.JwtToken);
-        //    })
-        //    .WithAutomaticReconnect(new[] {
-        //        TimeSpan.Zero, // Первая попытка сразу
-        //        TimeSpan.FromSeconds(1),
-        //        TimeSpan.FromSeconds(5),
-        //        TimeSpan.FromSeconds(10)
-        //    })
-        //    .Build();
-
         hubConnection_ = new HubConnectionBuilder().WithUrl("https://localhost:7068/chat", options =>
         {
             options.SkipNegotiation = true;
@@ -89,44 +75,37 @@ public class ChatsViewModel : ReactiveObject
             .WithAutomaticReconnect()
             .Build();
 
-        // Обработчики событий
         hubConnection_.Closed += async (error) =>
         {
-            Debug.WriteLine($"Соединение закрыто: {error?.Message}");
             await Task.Delay(1000);
             await hubConnection_.StartAsync();
         };
 
         hubConnection_.Reconnected += (connectionId) =>
         {
-            Debug.WriteLine($"Соединение восстановлено: {connectionId}");
             return Task.CompletedTask;
         };
 
-        hubConnection_.On<Guid, Message>("ReceiveMessage", (chatId, message) =>
-        {
-            var chat = Chats.FirstOrDefault(c => c.Id == chatId);
-            if (chat != null)
-            {
-                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                {
-                    // Если чат открыт - добавляем сообщение
-                    if (SelectedChat is ChatView chatView &&
-                        chatView.DataContext is ChatViewModel chatVm &&
-                        chatVm._chat.Id == chatId)
-                    {
-                        chatVm.Messages.Add(message);
-                    }
-                    // Обновляем список чатов
-                    LoadChats().ConfigureAwait(false);
-                });
-            }
-        });
+        //hubConnection_.On<Guid, Message>("ReceiveMessage", (chatId, message) =>
+        //{
+        //    var chat = Chats.FirstOrDefault(c => c.Id == chatId);
+        //    if (chat != null)
+        //    {
+        //        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        //        {
+        //            if (SelectedChat is ChatView chatView &&
+        //                chatView.DataContext is ChatViewModel chatVm &&
+        //                chatVm._chat.Id == chatId)
+        //            {
+        //                chatVm.Messages.Add(message);
+        //            }
+        //            LoadChats().ConfigureAwait(false);
+        //        });
+        //    }
+        //});
 
         hubConnection_.On<IEnumerable<object>>("UpdateChatList", (chatsObj) =>
         {
-            // Обновляем список чатов при изменениях
-            Debug.WriteLine($"=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-==-=--=-=");
             Avalonia.Threading.Dispatcher.UIThread.Post(async () =>
             {
                 await LoadChats();
@@ -139,7 +118,6 @@ public class ChatsViewModel : ReactiveObject
         }
         catch (Exception ex)
         {
-            // Обработка ошибок подключения
             Debug.WriteLine($"SignalR connection error: {ex.Message}");
         }
     }

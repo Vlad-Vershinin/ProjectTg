@@ -36,15 +36,24 @@ public class ChatViewModel : ReactiveObject
         _currentUserId = userId;
         _hubConnection = hubConnection;
 
-        _hubConnection.On<Guid, Message>("ReceiveMessage", (receivedChatId, message) =>
+        _hubConnection.On<MessageRes>("ReceiveMessage", (message) =>
         {
-            if (receivedChatId == _chat.Id)
+            if (message.ChatId == _chat.Id)
             {
                 Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                 {
-                    if (!Messages.Any(m => m.Id == message.Id))
+                    if (!Messages.Any(m => m.Id == message.Message.Id))
                     {
-                        Messages.Add(message);
+                        // Убедимся, что Sender не null
+                        if (message.Message.Sender == null && message.Message.SenderId != Guid.Empty)
+                        {
+                            // Если Sender null, но есть SenderId, загрузим пользователя
+                            _ = LoadSenderInfo(message.Message);
+                        }
+                        else
+                        {
+                            Messages.Add(message.Message);
+                        }
                     }
                 });
             }
@@ -127,4 +136,40 @@ public class ChatViewModel : ReactiveObject
     {
         _hubConnection?.DisposeAsync();
     }
+
+    private async Task LoadSenderInfo(Message message)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{_apiUrl}/users/finduser?Id={message.SenderId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var senderResponse = await response.Content.ReadAsStringAsync();
+                var user = JsonSerializer.Deserialize<User>(senderResponse, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                message.Sender = user;
+
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    if (!Messages.Any(m => m.Id == message.Id))
+                    {
+                        Messages.Add(message);
+                    }
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading sender info: {ex.Message}");
+        }
+    }
+}
+
+public class MessageRes
+{
+    public Guid ChatId { get; set; }
+    public Message Message { get; set; }
 }

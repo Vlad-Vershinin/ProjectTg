@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using static System.Net.Mime.MediaTypeNames;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace Server.Controllers;
 
@@ -66,21 +67,32 @@ public class ChatHub : Hub
 
         var otherUserId = chat.User1Id == userId ? chat.User2Id : chat.User1Id;
 
-        await Clients.Users(userId.ToString(), otherUserId.ToString())
-            .SendAsync("ReceiveMessage", chatId, new
+        var res = new MessageRes
+        {
+            ChatId = chatId,
+            Message = new Message
             {
-                message.Id,
-                message.Text,
-                message.SentAt,
-                message.ChatId,
-                message.SenderId,
-                Sender = new
+                Id = message.Id,
+                Text = message.Text,
+                SentAt = message.SentAt,
+                ChatId = message.ChatId,
+                SenderId = userId,
+                Sender = new User
                 {
-                    user.Id,
-                    user.Login,
-                    user.Username
+                    Id = user.Id,
+                    Login = user.Login,
+                    Description = user.Description,
+                    Username = user.Username,
+                    AvatarUrl = user.AvatarUrl,
                 }
-            });
+            }
+        };
+
+        Debug.WriteLine(res.Message.Sender.Login);
+
+
+        await Clients.Users(userId.ToString(), otherUserId.ToString())
+            .SendAsync("ReceiveMessage", res);
 
         await SendUpdatedChatList(userId);
         await SendUpdatedChatList(otherUserId);
@@ -136,4 +148,10 @@ public class ChatHub : Hub
             await SendUpdatedChatList(userId);
         }
     }
+}
+
+public class MessageRes
+{
+    public Guid ChatId { get; set; }
+    public Message Message { get; set; }
 }
