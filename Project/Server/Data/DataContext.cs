@@ -32,7 +32,6 @@ public class DataContext : DbContext
             .HasForeignKey(m => m.SenderId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Add relationship between Message and PrivateChat
         modelBuilder.Entity<Message>()
             .HasOne(m => m.Chat)
             .WithMany(c => c.Messages)
