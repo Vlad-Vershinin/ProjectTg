@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Server.Controllers;
 using Server.Data;
@@ -83,6 +84,13 @@ public class Program
         app.UseStaticFiles();
 
         app.MapControllers();
+
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Images")),
+            RequestPath = "/Images"
+        });
 
         app.MapHub<ChatHub>("/chat");
 

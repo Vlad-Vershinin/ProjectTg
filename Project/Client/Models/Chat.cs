@@ -12,7 +12,7 @@ public abstract class Chat
     public string? Description { get; set; }
 
     [JsonIgnore]
-    [Reactive] public string LastMessage { get; set; } = "Ласт";
+    [Reactive] public string LastMessage { get; set; }
 
     [JsonIgnore]
     public ObservableCollection<Message> Messages { get; set; } = new();

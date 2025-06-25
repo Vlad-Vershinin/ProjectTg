@@ -51,7 +51,7 @@ public class ChatsViewModel : ReactiveObject
             await hubConnection_.StopAsync();
             await hubConnection_.DisposeAsync();
             hubConnection_ = null;
-            mainVm.NavigateToLogin();
+            await mainVm.NavigateToLogin();
         });
         currentUserId_ = _mainViewModel.UserId;
 
@@ -69,7 +69,9 @@ public class ChatsViewModel : ReactiveObject
 
     private async Task OpenProfile()
     {
+        var progileVM = new ProfileWindowViewModel(currentUserId_);
         var profileView = new ProfileWIndowView();
+        profileView.DataContext = progileVM;
 
         var result = await profileView.ShowDialog<bool>(GetMainWindow());
     }
@@ -91,34 +93,10 @@ public class ChatsViewModel : ReactiveObject
             .WithAutomaticReconnect()
             .Build();
 
-        //hubConnection_.Closed += async (error) =>
-        //{
-        //    await Task.Delay(1000);
-        //    await hubConnection_.StartAsync();
-        //};
-
         hubConnection_.Reconnected += (connectionId) =>
         {
             return Task.CompletedTask;
         };
-
-        //hubConnection_.On<Guid, Message>("ReceiveMessage", (chatId, message) =>
-        //{
-        //    var chat = Chats.FirstOrDefault(c => c.Id == chatId);
-        //    if (chat != null)
-        //    {
-        //        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-        //        {
-        //            if (SelectedChat is ChatView chatView &&
-        //                chatView.DataContext is ChatViewModel chatVm &&
-        //                chatVm._chat.Id == chatId)
-        //            {
-        //                chatVm.Messages.Add(message);
-        //            }
-        //            LoadChats().ConfigureAwait(false);
-        //        });
-        //    }
-        //});
 
         hubConnection_.On<IEnumerable<object>>("UpdateChatList", (chatsObj) =>
         {
@@ -140,8 +118,8 @@ public class ChatsViewModel : ReactiveObject
 
     private async Task CreateChat()
     {
-        var dialogView = new CreateChatView();
         var viewModel = new CreateChatViewModel(this);
+        var dialogView = new CreateChatView();
         dialogView.DataContext = viewModel;
 
         var result = await dialogView.ShowDialog<bool>(GetMainWindow());

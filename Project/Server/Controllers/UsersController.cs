@@ -2,6 +2,7 @@
 using Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Server.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Server.Controllers;
 
@@ -41,4 +42,52 @@ public class UsersController : ControllerBase
 
         return Ok(user);
     }
+
+    [HttpPost("saveuser")]
+    public async Task<IActionResult> UpdateUser([FromForm] UserUpdateDto userDto)
+    {
+        var user = await _db.Users.FindAsync(userDto.Id);
+        if (user == null)
+            return NotFound();
+
+        // Обновляем основные данные
+        user.UserName = userDto.UserName;
+        user.Description = userDto.Description;
+        user.Email = userDto.Email;
+
+        // Обрабатываем аватар, если он был загружен
+        if (userDto.Image != null)
+        {
+            var uploadsFolder = Path.Combine("Images");
+            var fullUploadPath = Path.Combine(Directory.GetCurrentDirectory(), uploadsFolder);
+
+            if (!Directory.Exists(fullUploadPath))
+                Directory.CreateDirectory(fullUploadPath);
+
+            var uniqueFileName = $"{user.Id}_{userDto.Image.FileName}";
+            var filePath = Path.Combine(fullUploadPath, uniqueFileName);
+
+            await using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await userDto.Image.CopyToAsync(fileStream);
+            }
+
+            // Сохраняем относительный путь
+            user.ImagePath = Path.Combine(uploadsFolder, uniqueFileName);
+        }
+
+        _db.Users.Update(user);
+        await _db.SaveChangesAsync();
+
+        return Ok(user);
+    }
+}
+
+public class UserUpdateDto
+{
+    public Guid Id { get; set; }
+    public string UserName { get; set; }
+    public string? Description { get; set; }
+    public string Email { get; set; }
+    public IFormFile? Image { get; set; }
 }

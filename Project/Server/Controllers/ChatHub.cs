@@ -82,8 +82,8 @@ public class ChatHub : Hub
                     Id = user.Id,
                     Login = user.Login,
                     Description = user.Description,
-                    Username = user.Username,
-                    AvatarUrl = user.AvatarUrl,
+                    UserName = user.UserName,
+                    ImagePath = user.ImagePath,
                 }
             }
         };
@@ -121,7 +121,7 @@ public class ChatHub : Hub
                 x.Chat.Id,
                 x.Chat.Name,
                 OtherUserId = x.Chat.User1Id == userId ? x.Chat.User2Id : x.Chat.User1Id,
-                OtherUserName = x.Chat.User1Id == userId ? x.Chat.User2.Username : x.Chat.User1.Username,
+                OtherUserName = x.Chat.User1Id == userId ? x.Chat.User2.UserName : x.Chat.User1.UserName,
                 LastMessage = x.Chat.Messages.OrderByDescending(m => m.SentAt).FirstOrDefault(),
                 UnreadCount = x.Chat.Messages.Count(m => m.SenderId != userId && !m.IsRead)
             })

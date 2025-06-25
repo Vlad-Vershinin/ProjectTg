@@ -27,22 +27,23 @@
 			<StackPanel Grid.Column="0" Grid.Row="0"
 						HorizontalAlignment="Center"
 						VerticalAlignment="Center">
-				<Image Source="/Assets/avalonia-logo.ico"
+				<Image Source="{Binding UserAvatar}"
 					   Width="50"
 					   Height="50"
 					   Margin="5"/>
-				<Button Content="Выбрать аватар"/>
+				<Button Content="Выбрать аватар"
+						Command="{Binding LoadImageCommand}"/>
 			</StackPanel>
 
 			<StackPanel Grid.Column="1"
 						Margin="5">
 				<StackPanel Margin="5">
 					<TextBlock Text="Логин" Margin="0 0 0 5"/>
-					<TextBox IsEnabled="False"/>
+					<TextBox IsEnabled="False" Text="{Binding User.Avatar}"/>
 				</StackPanel>
 				<StackPanel Margin="5">
 					<TextBlock Text="Имя пользователя" Margin="0 0 0 5"/>
-					<TextBox Watermark="Ваше имя..."/>
+					<TextBox Watermark="Ваше имя..." Text="{Binding User.UserName}"/>
 				</StackPanel>
 			</StackPanel>
 
@@ -51,7 +52,7 @@
 						Margin="5">
 				<StackPanel Margin="5">
 					<TextBlock Text="Почта" Margin="0 0 0 5"/>
-					<TextBox Watermark="Почта..."/>
+					<TextBox Watermark="Почта..." Text="{Binding User.Email}"/>
 				</StackPanel>
 
 				<StackPanel Margin="5">
@@ -60,10 +61,11 @@
 							 AcceptsReturn="True"
 							 AcceptsTab="True"
 							 MinLines="10"
-							 MaxLength="10"/>
+							 MaxLength="10"
+							 Text="{Binding User.Description}"/>
 				</StackPanel>
 			</StackPanel>
-		
+			
 			<StackPanel Orientation="Horizontal"
 						HorizontalAlignment="Right"
 						Grid.Row="2"
@@ -72,10 +74,12 @@
 						Margin="5">
 				<Button Content="Сохранить"
 						Background="Transparent"
-						Margin="5"/>
+						Margin="5"
+						Command="{Binding SaveCommand}"/>
 				<Button Content="Отмена"
 						Margin="5"
-						Background="Transparent"/>
+						Background="Transparent"
+						Command="{Binding CloseCommand}"/>
 			</StackPanel>
 		</Grid>
 	</Border>

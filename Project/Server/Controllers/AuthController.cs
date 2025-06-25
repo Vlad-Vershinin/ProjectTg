@@ -48,8 +48,8 @@ public class AuthController : ControllerBase
             Login = registerDto.Login,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
             Email = registerDto.Email,
-            Username = registerDto.Login,
-            AvatarUrl = "avatar"
+            UserName = registerDto.Login,
+            ImagePath = "avatar"
         };
 
         db_.Users.Add(user);

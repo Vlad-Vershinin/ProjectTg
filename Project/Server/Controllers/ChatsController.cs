@@ -46,7 +46,7 @@ public class ChatsController : ControllerBase
             Id = dto.Id,
             User1Id = dto.User1Id,
             User2Id = dto.User2Id,
-            Name = $"{user1.Username} и {user2.Username}"
+            Name = $"{user1.UserName} и {user2.UserName}"
         };
 
         _context.PrivateChats.Add(chat);

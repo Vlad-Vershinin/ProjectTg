@@ -44,7 +44,7 @@ public class CreateChatController : ControllerBase
             Id = Guid.NewGuid(),
             User1Id = chatDto.User1Id,
             User2Id = chatDto.User2Id,
-            Name = $"{user1.Username} и {user2.Username}",
+            Name = $"{user1.UserName} и {user2.UserName}",
             Messages = new List<Message>()
         };
 

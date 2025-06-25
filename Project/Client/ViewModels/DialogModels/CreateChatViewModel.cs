@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Client.Models;
 using System.Net.Http;
 using System.Text.Json;
+using Avalonia.Controls;
 
 namespace Client.ViewModels.DialogModels;
 
@@ -50,18 +51,17 @@ public class CreateChatViewModel : ReactiveObject
                     PropertyNameCaseInsensitive = true
                 });
 
-                // Создание приватного чата
                 await _parentVm.CreatePrivateChat(
-                    _parentVm.currentUserId_, // ID текущего пользователя
-                    foundUser.Id            // ID найденного пользователя
+                    _parentVm.currentUserId_,
+                    foundUser.Id            
                 );
             }
             else
             {
                 if (string.IsNullOrWhiteSpace(GroupName))
                     throw new Exception("Введите название группы");
+                
 
-                Debug.WriteLine($"Создаем {(IsPublic ? "публичный" : "приватный")} чат: {GroupName}");
             }
 
             CloseDialog(true);
@@ -74,6 +74,10 @@ public class CreateChatViewModel : ReactiveObject
 
     private void CloseDialog(bool result)
     {
-        // Закрытие диалога
+        var view = ViewLocator.Current.ResolveView(this);
+        if (view is Window dialogWindow)
+        {
+            dialogWindow.Close(result);
+        }
     }
 }

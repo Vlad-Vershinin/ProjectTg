@@ -8,9 +8,9 @@ public class User
     public string Login { get; set; }
     public string PasswordHash { get; set; }
     public string Email { get; set; }
-    public string Username { get; set; }
+    public string UserName { get; set; }
     public string? Description { get; set; }
-    public string AvatarUrl { get; set; }
+    public string ImagePath { get; set; }
 
     //[JsonIgnore]
     //public List<Chat> Chats { get; set; }
